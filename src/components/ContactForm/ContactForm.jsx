@@ -1,62 +1,104 @@
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import { useDispatch, useSelector } from "react-redux";
-import * as Yup from "yup";
-import { addContact } from "../../redux/contactsSlice";
-import { selectContacts } from "../../redux/contactsSlice";
-import css from "./ContactForm.module.css";
+import css from './ContactForm.module.css';
+import { useId } from 'react';
+import { Formik, Field, Form, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import { nanoid } from 'nanoid';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from '../../redux/contactsOps';
+import { selectContacts } from '../../redux/contactsSlice';
 
-const validationSchema = Yup.object({
-    name: Yup.string().min(3, "Too Short!").max(50, "Too Long!").required("Required"),
-    number: Yup.string().min(3, "Too Short!").max(50, "Too Long!").required("Required")
-    .matches(/^[0-9]+$/, "Phone number must contain only digits")
-    .required("Number is required"),
-});
 
 const ContactForm = () => {
-  const dispatch = useDispatch();
-  const contacts = useSelector(selectContacts);
+  const idName = useId();
+  const idNumber = useId();
 
-  const handleSubmit = (values, { resetForm }) => {
-    const duplicate = contacts.some(
-      (contact) => contact.name.toLowerCase() === values.name.toLowerCase()
-    );
-    if (duplicate) {
-      alert(`${values.name} is already in contacts!`);
-      return;
-    }
-    dispatch(addContact({ id: Date.now().toString(), ...values }));
-    resetForm();
+  const validationSchema = Yup.object({
+    name: Yup.string()
+      .min(3, 'Too Short!')
+      .max(50, 'Too Long!')
+      .required('Required'),
+    number: Yup.string()
+      .matches(
+        /^(\d{2,4}-?)+\d{2,4}$/,
+        'Number must be between 6 and 15 digits and can include hyphens, e.g., 123-456-7890',
+      )
+      .required('Number is required'),
+  });
+
+  const initialValues = {
+    name: '',
+    number: '',
   };
 
+  const dispatch = useDispatch();
+  const contacts = useSelector(selectContacts);
+  const handleSubmit = (values, actions) => {
+    const { name } = values;
+
+    const isDuplicate = contacts.some(
+      (contact) => contact.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (isDuplicate) {
+      alert(`Contact with name "${name}" already exists!`); 
+      return;
+    }
+    const data = { ...values, id: nanoid(6) };
+    actions.resetForm();
+    dispatch(addContact(data));
+  };
   return (
     <Formik
-      initialValues={{ name: "", number: "" }}
+      initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      {() => (
+      {({ isValid, dirty }) => (
         <Form className={css.formContact}>
-          <div>
-            <label htmlFor="name" className={css.labelContact}>Name</label>
-            <Field className={css.field} type="text" id="name" name="name" placeholder="Enter name" />
-            <ErrorMessage name="name" component="div" className={css.errorMessage} />
-          </div>
-          <div>
-            <label htmlFor="number">Number</label>
-            <Field
-              className={css.field}
-              type="text"
-              id="number"
-              name="number"
-              placeholder="Enter phone number"
-            />
-            <ErrorMessage name="number" className={css.errorMessage} />
-          </div>
-          <button type="submit" className={css.buttonAdd}>Add Contact</button>
+          <label htmlFor={idName} className={css.labelContact}>
+            Name
+          </label>
+          <Field
+            id={idName}
+            className={css.field}
+            type="text"
+            name="name"
+            required
+            autoFocus
+          />
+          <ErrorMessage
+            name="name"
+            component="div"
+            className={css.errorMessage}
+          />
+
+          <label htmlFor={idNumber} className={css.labelContact}>
+            Number
+          </label>
+          <Field
+            id={idNumber}
+            className={css.field}
+            type="tel"
+            name="number"
+            required
+          />
+          <ErrorMessage
+            name="number"
+            component="div"
+            className={css.errorMessage}
+          />
+
+          <button
+            className={css.buttonAdd}
+            type="submit"
+            disabled={!isValid || !dirty}
+          >
+            Add contact
+          </button>
         </Form>
       )}
     </Formik>
   );
 };
 
-export default ContactForm;
+export default ContactForm

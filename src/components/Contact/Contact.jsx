@@ -1,17 +1,28 @@
-import s from './Contact.module.css';
+import css from './Contact.module.css';
 import { BsFillTelephoneFill } from "react-icons/bs";
 import { IoMdPerson } from "react-icons/io";
+import { deleteContact } from '../../redux/contactsOps';
+import { useDispatch } from "react-redux";
 
-function Contact({ name, number, onDelete }) {
+const Contact = ({ contact }) => {
+  const dispatch = useDispatch();
+  const handleDelete = () => {
+    dispatch(deleteContact(contact.id));
+  };
+
   return (
-    <li className={s.itemContact}>
-      <IoMdPerson className={s.iconPeople} />
-      <p className={s.nameContact}>{name}</p>
-      <BsFillTelephoneFill className={s.iconPhone} />
-      <p className={s.nameContact}>{number}</p>
-      <button className={s.buttonDelete} onClick={onDelete}>Delete</button>
+    <li className={css.itemContact}>
+      <IoMdPerson size={18} className={css.iconPeople} />
+      {contact.name}:{' '}
+      <BsFillTelephoneFill size={18} className={css.iconPhone}
+      />
+      {contact.number}
+      <button className={css.buttonDelete} onClick={handleDelete}>
+        Delete
+      </button>
     </li>
   );
 }
+
 
 export default Contact;
