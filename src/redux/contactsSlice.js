@@ -5,7 +5,7 @@ const handlePending = (state) => {
         state.loading = true;
       };
 
-const handleRegected = (state, action) => {
+const handleRegected = (state, action) => { 
         state.loading = false;
         state.error = action.payload;
       };
