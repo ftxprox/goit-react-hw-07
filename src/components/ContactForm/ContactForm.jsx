@@ -33,7 +33,7 @@ const ContactForm = () => {
   const dispatch = useDispatch();
   const contacts = useSelector(selectContacts);
   const handleSubmit = (values, actions) => {
-    const { name } = values;
+    const { name, number } = values;
 
     const isDuplicate = contacts.some(
       (contact) => contact.name.toLowerCase() === name.toLowerCase()

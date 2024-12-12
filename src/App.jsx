@@ -10,10 +10,10 @@ import { selectError, selectLoading } from './redux/contactsSlice';
 
 
 
-const App = () => {
-const dispatch = useDispatch();
-const loader = useSelector(selectLoading);
-const error = useSelector(selectError);
+ const App = () => {
+ const dispatch = useDispatch();
+  const loader = useSelector(selectLoading);
+  const error = useSelector(selectError);
 
 
   useEffect(() => {
